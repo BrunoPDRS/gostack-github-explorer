@@ -42,7 +42,8 @@
       }
     ],
     "no-use-before-define": "off",
-    "prettier/prettier": "error"
+    "prettier/prettier": "error",
+    "camelcase": 0
   },
   "settings": {
     "import/resolver": {
