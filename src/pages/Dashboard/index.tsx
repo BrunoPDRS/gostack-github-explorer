@@ -1,58 +1,63 @@
-import React from 'react';
+import React, { useState, FormEvent } from 'react';
 import { FiChevronRight } from 'react-icons/fi';
+import api from '../../services/api';
 
 import logoImg from '../../assets/logo-github-explorer.svg';
 
 import { Title, Form, Repositories } from './styles';
 
+interface Repository {
+  full_name: string;
+  description: string;
+  owner: {
+    login: string;
+    avatar_url: string;
+  };
+}
+
 const Dashboard: React.FC = () => {
+  const [newRepo, setNewRepo] = useState('');
+  const [repositories, setRepositories] = useState<Repository[]>([]);
+
+  async function handleAddRepository(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    const response = await api.get<Repository>(`repos/${newRepo}`);
+
+    const repository = response.data;
+
+    setRepositories([...repositories, repository]);
+  }
+
   return (
     <>
       <img src={logoImg} alt="Github Explorer" />
       <Title>Explore repositórios no Github.</Title>
 
-      <Form action="">
-        <input placeholder="Digite o nome do repositório" />
+      <Form action="" onSubmit={handleAddRepository}>
+        <input
+          value={newRepo}
+          onChange={event => setNewRepo(event.target.value)}
+          placeholder="Digite o nome do repositório"
+        />
         <button type="submit">Pesquisar</button>
       </Form>
 
       <Repositories>
-        <a href="teste">
+        {repositories.map(repository => (
+          <a key={repository.full_name} href="teste">
           <img
-            src="https://avatars0.githubusercontent.com/u/67613857?s=460&u=f2325afcbdcdef54b66ee7f6c04393cec7210d31&v=4"
-            alt="Bruno Pedrosa"
+            src={repository.owner.avatar_url}
+            alt={repository.owner.login}
           />
           <div>
-            <strong>brunoPDRS/PyTicTacToe</strong>
-            <p>Tic Tac Toe using Pygame</p>
+            <strong>{repository.full_name}</strong>
+            <p>{repository.description}</p>
           </div>
 
           <FiChevronRight size={20} />
         </a>
-        <a href="teste">
-          <img
-            src="https://avatars0.githubusercontent.com/u/67613857?s=460&u=f2325afcbdcdef54b66ee7f6c04393cec7210d31&v=4"
-            alt="Bruno Pedrosa"
-          />
-          <div>
-            <strong>brunoPDRS/PyTicTacToe</strong>
-            <p>Tic Tac Toe using Pygame</p>
-          </div>
-
-          <FiChevronRight size={20} />
-        </a>
-        <a href="teste">
-          <img
-            src="https://avatars0.githubusercontent.com/u/67613857?s=460&u=f2325afcbdcdef54b66ee7f6c04393cec7210d31&v=4"
-            alt="Bruno Pedrosa"
-          />
-          <div>
-            <strong>brunoPDRS/PyTicTacToe</strong>
-            <p>Tic Tac Toe using Pygame</p>
-          </div>
-
-          <FiChevronRight size={20} />
-        </a>
+        ))}
       </Repositories>
     </>
   );
